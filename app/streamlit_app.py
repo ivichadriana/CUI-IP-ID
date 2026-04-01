@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from typing import Any, List
 import traceback
+from core.schema import NextStep
 
 import streamlit as st
 
@@ -159,6 +160,9 @@ def main() -> None:
 
                 pdf_bytes = render_ipid_pdf_bytes(report=report, meta=meta)
 
+                idf_count = sum(1 for o in report.opportunities if o.suggested_next_step == NextStep.IDF)
+                low_count = sum(1 for o in report.opportunities if o.suggested_next_step == NextStep.LOW)
+
                 # Log usage (silent)
                 log_usage(
                     department=dept,
@@ -166,7 +170,13 @@ def main() -> None:
                     doc_chars=len(text),
                     run_id=run_id,
                     timestamp_iso=ts,
-                    extra={"max_doc_chars": max_chars, "app_version": APP_VERSION, "mode": mode},
+                    extra={
+                        "max_doc_chars": max_chars,
+                        "app_version": APP_VERSION,
+                        "mode": mode,
+                        "IDF": idf_count,
+                        "LOW": low_count,
+                    },
                 )
 
             # Store results
